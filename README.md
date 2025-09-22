@@ -1,5 +1,9 @@
 # Interactive Star Map & Constellation Viewer
 
+[![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-Live-brightgreen)](https://bhbmaster.github.io/constellation-viewer)
+[![GitHub](https://img.shields.io/badge/GitHub-Repository-blue)](https://github.com/bhbmaster/constellation-viewer)
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 A modern, high-performance web application for exploring the night sky with real-time astronomical calculations, constellation visualization, and solar system object tracking.
 
 ## Features
@@ -34,7 +38,7 @@ A modern, high-performance web application for exploring the night sky with real
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/your-username/constellation-viewer.git
+   git clone https://github.com/bhbmaster/constellation-viewer.git
    cd constellation-viewer
    ```
 
