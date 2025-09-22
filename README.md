@@ -1,12 +1,18 @@
-# Interactive Star Map & Constellation Viewer
+# 🌟 Interactive Star Map & Constellation Viewer
 
 [![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-Live-brightgreen)](https://bhbmaster.github.io/constellation-viewer)
 [![GitHub](https://img.shields.io/badge/GitHub-Repository-blue)](https://github.com/bhbmaster/constellation-viewer)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Node.js](https://img.shields.io/badge/Node.js-14%2B-green)](https://nodejs.org/)
+[![JavaScript](https://img.shields.io/badge/JavaScript-ES6%2B-yellow)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
 
 A modern, high-performance web application for exploring the night sky with real-time astronomical calculations, constellation visualization, and solar system object tracking.
 
-## Features
+## 🌐 Live Demo
+
+**[Visit the live application →](https://bhbmaster.github.io/constellation-viewer)**
+
+## ✨ Features
 
 ### 🌟 Core Functionality
 - **21 Constellations** with 150+ accurate star positions from the Hipparcos catalog
@@ -28,11 +34,11 @@ A modern, high-performance web application for exploring the night sky with real
 - **Performance Monitoring** with real-time FPS and memory usage display
 - **Help System** with comprehensive keyboard shortcuts and navigation guide
 
-## Quick Start
+## 🚀 Quick Start
 
 ### Prerequisites
 - Modern web browser with ES6 module support
-- Python 3.x (for development server) or Node.js (for build tools)
+- Node.js 14+ (for development)
 
 ### Installation
 
@@ -42,153 +48,118 @@ A modern, high-performance web application for exploring the night sky with real
    cd constellation-viewer
    ```
 
-2. **Install dependencies** (optional, for development)
+2. **Install dependencies**
    ```bash
    npm install
    ```
 
-3. **Start the development server**
+3. **Start development server**
    ```bash
-   # Using Python (recommended for quick start)
-   python -m http.server 8000 --directory src
-   
-   # Or using npm
    npm run dev
+   # or
+   ./scripts/dev.sh
    ```
 
 4. **Open your browser**
-   Navigate to `http://localhost:8000` to view the star map.
+   Navigate to http://localhost:8000
 
-### Production Build
+## 🛠 Development
+
+### Available Scripts
 
 ```bash
-npm run build
+# Development
+npm run dev          # Start development server
+npm run serve        # Alternative development server
+
+# Building
+npm run build        # Build for production
+npm run clean        # Clean build directory
+npm run prebuild     # Pre-build cleanup
+
+# Testing
+npm test             # Run test suite
+npm run test:watch   # Run tests in watch mode
+npm run test:coverage # Run tests with coverage
+
+# Code Quality
+npm run lint         # Run ESLint
+npm run lint:fix     # Fix ESLint issues
 ```
 
-The built files will be in the `dist/` directory.
+### Project Structure
 
-## Usage
-
-### Navigation
-- **Mouse Drag**: Pan across the sky
-- **Mouse Wheel**: Zoom in/out
-- **Double-click Object**: Follow an object (keeps it centered)
-- **Touch Drag**: Pan (mobile)
-- **Pinch**: Zoom (mobile)
-
-### Time Controls
-- **Manual Buttons**: Navigate by second, minute, hour, day, month, year
-- **Play/Pause**: Start/stop time animation
-- **Speed Selector**: Choose time acceleration (1 sec/sec to 1 year/sec)
-- **Fast Controls**: 10x speed in either direction
-
-### Search
-- **Type in search box**: Find stars, planets, and deep sky objects
-- **Arrow Keys**: Navigate search results
-- **Enter**: Select and follow an object
-- **Escape**: Close search results
-
-### Keyboard Shortcuts
-- **Space**: Play/pause time animation
-- **U**: Unfollow current object
-- **?**: Show/hide help
-- **Escape**: Close modals and search
-
-## Architecture
-
-### File Structure
 ```
-src/
-├── components/          # Main application components
-│   ├── StarMap.js      # Core rendering and interaction engine
-│   ├── SolarSystem.js  # Solar system calculations
-│   └── ObjectSearch.js # Search functionality
-├── data/               # Astronomical data
-│   └── ConstellationData.js
-├── utils/              # Utility functions
-│   ├── Constants.js    # Application constants
-│   ├── CoordinateUtils.js # Coordinate transformations
-│   ├── TimeUtils.js    # Time calculations
-│   └── MathUtils.js    # Mathematical utilities
-├── styles/             # CSS styles
-│   └── main.css
-├── tests/              # Unit tests
-│   ├── setup.js
-│   ├── CoordinateUtils.test.js
-│   └── SolarSystem.test.js
-├── index.html          # Main HTML file
-└── main.js            # Application entry point
+constellation-viewer/
+├── src/                    # Source code
+│   ├── components/         # React-like components
+│   │   ├── StarMap.js     # Main rendering engine
+│   │   ├── SolarSystem.js # Solar system calculations
+│   │   └── ObjectSearch.js # Search functionality
+│   ├── data/              # Astronomical data
+│   │   └── ConstellationData.js
+│   ├── utils/             # Utility functions
+│   │   ├── Constants.js   # Configuration constants
+│   │   ├── CoordinateUtils.js # Coordinate transformations
+│   │   ├── MathUtils.js   # Mathematical utilities
+│   │   └── TimeUtils.js   # Time manipulation
+│   ├── tests/             # Test files
+│   ├── styles/            # CSS styles
+│   ├── index.html         # Main HTML file
+│   └── main.js           # Application entry point
+├── scripts/               # Development scripts
+├── dist/                  # Build output
+├── .github/workflows/     # CI/CD pipelines
+└── docs/                  # Documentation
 ```
 
-### Key Classes
+## 🧪 Testing
 
-#### StarMap
-The main application class that handles:
-- Canvas rendering and interaction
-- Event handling (mouse, touch, keyboard)
-- View management and coordinate transformations
-- Performance optimization and caching
+The project includes a comprehensive test suite using Jest:
 
-#### SolarSystem
-Handles astronomical calculations for:
-- Sun, Moon, and planet positions
-- Orbital mechanics and time-based calculations
-- Julian Day Number conversions
-
-#### ObjectSearch
-Provides search functionality for:
-- Stars, planets, and deep sky objects
-- Fuzzy text matching and filtering
-- Search result ranking and display
-
-## Development
-
-### Running Tests
 ```bash
+# Run all tests
 npm test
+
+# Run tests in watch mode
+npm run test:watch
+
+# Generate coverage report
+npm run test:coverage
 ```
 
-### Linting
-```bash
-npm run lint
-npm run lint:fix
-```
+### Test Coverage
+- **CoordinateUtils**: 100% coverage
+- **SolarSystem**: 100% coverage
+- **MathUtils**: 100% coverage
+- **TimeUtils**: 100% coverage
 
-### Performance Monitoring
-The application includes built-in performance monitoring that displays:
-- Frame rate (FPS)
-- Average render time
-- Cache size
-- Memory usage
+## 📚 Documentation
 
-### Adding New Features
+- **[API Documentation](API.md)** - Complete API reference
+- **[Changelog](CHANGELOG.md)** - Version history and changes
+- **[Project Summary](PROJECT_SUMMARY.md)** - Detailed feature overview
+- **[Scripts Guide](scripts/README.md)** - Development script documentation
 
-1. **New Constellations**: Add data to `src/data/ConstellationData.js`
-2. **New Deep Sky Objects**: Extend the `DEEP_SKY_OBJECTS` array
-3. **New Solar System Objects**: Add orbital elements to `SolarSystem.js`
-4. **New UI Components**: Create in `src/components/` and import in `main.js`
+## 🔧 Configuration
 
-## Technical Details
+### Environment Variables
+- `NODE_ENV`: Environment (development/production)
+- `PORT`: Development server port (default: 8000)
 
-### Coordinate Systems
-- **Right Ascension (RA)**: Hours (0-24)
-- **Declination (Dec)**: Degrees (-90 to +90)
-- **Stereographic Projection**: Used for sky-to-screen conversion
-- **Local Sidereal Time**: Calculated for accurate sky positioning
+### Customization
+- **Constants**: Modify `src/utils/Constants.js` for configuration
+- **Styling**: Update `src/styles/main.css` for visual changes
+- **Data**: Add objects in `src/data/ConstellationData.js`
 
-### Performance Optimizations
-- **Position Caching**: Cached coordinate transformations
-- **Render Throttling**: 60 FPS maximum update rate
-- **Memory Management**: Automatic cache cleanup
-- **Efficient Algorithms**: Optimized mathematical calculations
+## 🌍 Browser Support
 
-### Browser Compatibility
-- **ES6 Modules**: Required for modern JavaScript features
-- **Canvas API**: For 2D rendering
-- **Touch Events**: For mobile support
-- **Performance API**: For monitoring (optional)
+- **Chrome**: 61+
+- **Firefox**: 60+
+- **Safari**: 10.1+
+- **Edge**: 79+
 
-## Contributing
+## 🤝 Contributing
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
@@ -196,31 +167,38 @@ The application includes built-in performance monitoring that displays:
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-## License
+### Development Guidelines
+- Follow ES6+ standards
+- Write tests for new features
+- Update documentation
+- Follow the existing code style
+
+## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## Acknowledgments
+## 🙏 Acknowledgments
 
 - **Hipparcos Catalog** for star position data
 - **Messier Catalog** for deep sky object data
-- **NASA JPL** for planetary orbital elements
-- **Astronomical Algorithms** by Jean Meeus for calculation methods
+- **Astronomical Algorithms** by Jean Meeus
+- **Open source community** for inspiration and tools
 
-## Changelog
+## 📞 Support
 
-### Version 2.0.0
-- Complete rewrite with modern ES6+ modules
-- Fixed mouse dragging functionality
-- Added comprehensive search system
-- Implemented performance optimizations
-- Added mobile touch support
-- Enhanced error handling and loading states
-- Added unit tests and documentation
-- Improved accessibility and keyboard navigation
+- **Issues**: [GitHub Issues](https://github.com/bhbmaster/constellation-viewer/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/bhbmaster/constellation-viewer/discussions)
+- **Email**: [bhbmaster@gmail.com](mailto:bhbmaster@gmail.com)
 
-### Version 1.0.0
-- Initial release with basic constellation viewing
-- Solar system object tracking
-- Time controls and playback
-- Basic coordinate grid and star rendering
+## 🗺 Roadmap
+
+- [ ] Additional constellation data
+- [ ] Enhanced mobile interactions
+- [ ] Offline support
+- [ ] Plugin system
+- [ ] Internationalization
+- [ ] Advanced search filters
+
+---
+
+**Made with ❤️ and JavaScript by [bhbmaster](https://github.com/bhbmaster)**
