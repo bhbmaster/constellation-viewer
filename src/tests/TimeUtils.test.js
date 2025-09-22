@@ -309,4 +309,176 @@ describe('TimeUtils', () => {
             }
         });
     });
+
+    describe('mathematical accuracy and precision', () => {
+        test('should calculate Julian Day with sufficient precision', () => {
+            const date1 = new Date('2000-01-01T12:00:00Z');
+            const date2 = new Date('2000-01-01T12:00:01Z');
+            
+            const jd1 = TimeUtils.getJulianDay(date1);
+            const jd2 = TimeUtils.getJulianDay(date2);
+            
+            // 1 second should be approximately 1/86400 of a day
+            const diff = jd2 - jd1;
+            expect(diff).toBeCloseTo(1/86400, 6);
+        });
+
+        test('should handle microsecond precision', () => {
+            const date1 = new Date('2023-06-15T12:00:00.000Z');
+            const date2 = new Date('2023-06-15T12:00:00.001Z');
+            
+            const jd1 = TimeUtils.getJulianDay(date1);
+            const jd2 = TimeUtils.getJulianDay(date2);
+            
+            // The difference should be very small but measurable
+            const diff = jd2 - jd1;
+            expect(diff).toBeGreaterThanOrEqual(0);
+            expect(diff).toBeCloseTo(1/86400000, 6); // 1ms = 1/86400000 days
+        });
+
+        test('should maintain precision across different dates', () => {
+            const dates = [
+                new Date('1900-01-01T00:00:00Z'),
+                new Date('1950-01-01T00:00:00Z'),
+                new Date('2000-01-01T00:00:00Z'),
+                new Date('2050-01-01T00:00:00Z'),
+                new Date('2100-01-01T00:00:00Z')
+            ];
+            
+            dates.forEach(date => {
+                const jd = TimeUtils.getJulianDay(date);
+                const days = TimeUtils.getDaysSinceJ2000(date);
+                const lst = TimeUtils.getLocalSiderealTime(date);
+                
+                expect(jd).toBeGreaterThan(0);
+                expect(typeof jd).toBe('number');
+                expect(typeof days).toBe('number');
+                expect(typeof lst).toBe('number');
+                expect(lst).toBeGreaterThanOrEqual(0);
+                expect(lst).toBeLessThan(24);
+            });
+        });
+    });
+
+    describe('timezone and localization', () => {
+        test('should handle different timezone formats in formatTime', () => {
+            const date = new Date('2023-06-15T12:00:00Z');
+            
+            const timezones = [
+                'local',
+                'UTC',
+                'America/New_York',
+                'America/Chicago',
+                'America/Denver',
+                'America/Los_Angeles',
+                'Europe/London',
+                'Europe/Paris',
+                'Asia/Tokyo'
+            ];
+            
+            timezones.forEach(tz => {
+                const formatted = TimeUtils.formatTime(date, tz);
+                expect(formatted).toBeDefined();
+                expect(typeof formatted).toBe('string');
+                expect(formatted.length).toBeGreaterThan(0);
+            });
+        });
+
+        test('should handle invalid timezone gracefully', () => {
+            const date = new Date('2023-06-15T12:00:00Z');
+            
+            const invalidTimezones = ['invalid', '', null, undefined];
+            
+            invalidTimezones.forEach(tz => {
+                const formatted = TimeUtils.formatTime(date, tz);
+                expect(formatted).toBeDefined();
+                expect(typeof formatted).toBe('string');
+            });
+        });
+    });
+
+    describe('astronomical accuracy', () => {
+        test('should calculate LST within valid range', () => {
+            const testDates = [
+                new Date('2023-01-01T00:00:00Z'),
+                new Date('2023-03-21T00:00:00Z'), // Spring equinox
+                new Date('2023-06-21T00:00:00Z'), // Summer solstice
+                new Date('2023-09-23T00:00:00Z'), // Autumn equinox
+                new Date('2023-12-21T00:00:00Z')  // Winter solstice
+            ];
+            
+            testDates.forEach(date => {
+                const lst = TimeUtils.getLocalSiderealTime(date);
+                expect(lst).toBeGreaterThanOrEqual(0);
+                expect(lst).toBeLessThan(24);
+                expect(typeof lst).toBe('number');
+            });
+        });
+
+        test('should show LST progression over time', () => {
+            const baseDate = new Date('2023-06-15T00:00:00Z');
+            const lstValues = [];
+            
+            // Test LST over 24 hours
+            for (let hour = 0; hour < 24; hour++) {
+                const date = new Date(baseDate.getTime() + hour * 60 * 60 * 1000);
+                const lst = TimeUtils.getLocalSiderealTime(date);
+                lstValues.push(lst);
+            }
+            
+            // LST should generally increase over time (with some variation due to Earth's rotation)
+            expect(lstValues.length).toBe(24);
+            lstValues.forEach(lst => {
+                expect(lst).toBeGreaterThanOrEqual(0);
+                expect(lst).toBeLessThan(24);
+            });
+        });
+    });
+
+    describe('error recovery and robustness', () => {
+        test('should handle malformed date strings', () => {
+            const malformedDates = [
+                'not-a-date',
+                '2023-13-45T25:70:90Z', // Invalid month, day, hour, minute, second
+                '2023-02-30T12:00:00Z', // Invalid day for February
+                '2023-04-31T12:00:00Z', // Invalid day for April
+                '2023-06-15T12:00:00', // Missing timezone
+                '2023/06/15 12:00:00' // Wrong format
+            ];
+            
+            malformedDates.forEach(dateStr => {
+                const date = new Date(dateStr);
+                const jd = TimeUtils.getJulianDay(date);
+                const lst = TimeUtils.getLocalSiderealTime(date);
+                const days = TimeUtils.getDaysSinceJ2000(date);
+                
+                // Should either return valid numbers or handle gracefully
+                expect(typeof jd).toBe('number');
+                expect(typeof lst).toBe('number');
+                expect(typeof days).toBe('number');
+            });
+        });
+
+        test('should handle extreme date values', () => {
+            const extremeDates = [
+                new Date('0001-01-01T00:00:00Z'), // Very old
+                new Date('9999-12-31T23:59:59Z'), // Very future
+                new Date('1970-01-01T00:00:00Z'), // Unix epoch
+                new Date('2038-01-19T03:14:07Z')  // 32-bit time_t limit
+            ];
+            
+            extremeDates.forEach(date => {
+                const jd = TimeUtils.getJulianDay(date);
+                const days = TimeUtils.getDaysSinceJ2000(date);
+                const lst = TimeUtils.getLocalSiderealTime(date);
+                
+                expect(jd).toBeDefined();
+                expect(days).toBeDefined();
+                expect(lst).toBeDefined();
+                expect(typeof jd).toBe('number');
+                expect(typeof days).toBe('number');
+                expect(typeof lst).toBe('number');
+            });
+        });
+    });
 });

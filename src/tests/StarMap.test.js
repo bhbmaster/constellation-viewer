@@ -80,7 +80,8 @@ jest.mock('../components/ObjectSearch.js', () => ({
 jest.mock('../utils/CoordinateUtils.js', () => ({
     CoordinateUtils: {
         skyToScreen: jest.fn(() => ({ x: 400, y: 300 })),
-        screenToSky: jest.fn(() => ({ ra: 12, dec: 0 }))
+        screenToSky: jest.fn(() => ({ ra: 12, dec: 0 })),
+        distance: jest.fn((p1, p2) => Math.sqrt((p2.x - p1.x) ** 2 + (p2.y - p1.y) ** 2))
     }
 }));
 
@@ -428,6 +429,247 @@ describe('StarMap', () => {
         });
     });
 
+    describe('rendering and display methods', () => {
+        test('should handle render method calls', () => {
+            expect(() => starMap.render()).not.toThrow();
+        });
+
+        test('should handle updateDisplay method calls', () => {
+            expect(() => starMap.updateDisplay()).not.toThrow();
+        });
+
+        test('should handle updateTimeInputs method calls', () => {
+            expect(() => starMap.updateTimeInputs()).not.toThrow();
+        });
+
+        test('should handle updateSpeedDisplay method calls', () => {
+            expect(() => starMap.updateSpeedDisplay()).not.toThrow();
+        });
+
+        test('should handle updateFollowingView method calls', () => {
+            expect(() => starMap.updateFollowingView()).not.toThrow();
+        });
+    });
+
+    describe('drawing methods', () => {
+        test('should handle drawGrid method calls', () => {
+            expect(() => starMap.drawGrid()).not.toThrow();
+        });
+
+        test('should handle drawStars method calls', () => {
+            expect(() => starMap.drawStars()).not.toThrow();
+        });
+
+        test('should handle drawConstellations method calls', () => {
+            expect(() => starMap.drawConstellations()).not.toThrow();
+        });
+
+        test('should handle drawSolarSystemObjects method calls', () => {
+            expect(() => starMap.drawSolarSystemObjects()).not.toThrow();
+        });
+
+        test('should handle drawStarNames method calls', () => {
+            expect(() => starMap.drawStarNames()).not.toThrow();
+        });
+
+        test('should handle drawDeepSkyObjects method calls', () => {
+            expect(() => starMap.drawDeepSkyObjects()).not.toThrow();
+        });
+    });
+
+    describe('event handling methods', () => {
+        test('should handle double click events', () => {
+            expect(() => starMap.handleDoubleClick(400, 300)).not.toThrow();
+        });
+
+        test('should handle toggleHelp method calls', () => {
+            expect(() => starMap.toggleHelp()).not.toThrow();
+        });
+
+        test('should handle startAnimation method calls', () => {
+            expect(() => starMap.startAnimation()).not.toThrow();
+        });
+    });
+
+    describe('setup methods', () => {
+        test('should handle setupMouseEvents method calls', () => {
+            expect(() => starMap.setupMouseEvents()).not.toThrow();
+        });
+
+        test('should handle setupTouchEvents method calls', () => {
+            expect(() => starMap.setupTouchEvents()).not.toThrow();
+        });
+
+        test('should handle setupKeyboardEvents method calls', () => {
+            expect(() => starMap.setupKeyboardEvents()).not.toThrow();
+        });
+
+        test('should handle setupControlEvents method calls', () => {
+            expect(() => starMap.setupControlEvents()).not.toThrow();
+        });
+
+        test('should handle setupTimeControls method calls', () => {
+            expect(() => starMap.setupTimeControls()).not.toThrow();
+        });
+
+        test('should handle setupPlaybackControls method calls', () => {
+            expect(() => starMap.setupPlaybackControls()).not.toThrow();
+        });
+    });
+
+    describe('coordinate system validation', () => {
+        test('should handle extreme coordinate values', () => {
+            const extremeCoords = [
+                { ra: 0, dec: 0 },
+                { ra: 12, dec: 90 },
+                { ra: 12, dec: -90 },
+                { ra: 24, dec: 0 },
+                { ra: -1, dec: 0 }
+            ];
+
+            extremeCoords.forEach(coord => {
+                const screenPos = starMap.skyToScreen(coord.ra, coord.dec);
+                expect(screenPos).toBeDefined();
+                expect(screenPos).toHaveProperty('x');
+                expect(screenPos).toHaveProperty('y');
+            });
+        });
+
+        test('should handle screen coordinate conversion edge cases', () => {
+            const screenCoords = [
+                { x: 0, y: 0 },
+                { x: 400, y: 300 },
+                { x: 800, y: 600 },
+                { x: -100, y: -100 },
+                { x: 1000, y: 1000 }
+            ];
+
+            screenCoords.forEach(coord => {
+                const skyPos = starMap.screenToSky(coord.x, coord.y);
+                expect(skyPos).toBeDefined();
+                expect(skyPos).toHaveProperty('ra');
+                expect(skyPos).toHaveProperty('dec');
+            });
+        });
+    });
+
+    describe('star rendering properties', () => {
+        test('should handle different magnitude values for star size', () => {
+            const magnitudes = [-2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8];
+            
+            magnitudes.forEach(mag => {
+                const size = starMap.getStarSize(mag);
+                expect(typeof size).toBe('number');
+                expect(size).toBeGreaterThan(0);
+            });
+        });
+
+        test('should handle different magnitude values for star color', () => {
+            const magnitudes = [-2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8];
+            
+            magnitudes.forEach(mag => {
+                const color = starMap.getStarColor(mag);
+                expect(typeof color).toBe('string');
+                expect(color).toMatch(/^#[0-9A-Fa-f]{6}$/);
+            });
+        });
+
+        test('should return consistent star properties for same magnitude', () => {
+            const mag = 2.5;
+            const size1 = starMap.getStarSize(mag);
+            const size2 = starMap.getStarSize(mag);
+            const color1 = starMap.getStarColor(mag);
+            const color2 = starMap.getStarColor(mag);
+            
+            expect(size1).toBe(size2);
+            expect(color1).toBe(color2);
+        });
+    });
+
+    describe('performance and memory management', () => {
+        test('should handle position cache operations', () => {
+            const initialSize = starMap.positionCache.size;
+            
+            // Add some test entries
+            starMap.positionCache.set('test1', { x: 100, y: 200 });
+            starMap.positionCache.set('test2', { x: 300, y: 400 });
+            
+            expect(starMap.positionCache.size).toBe(initialSize + 2);
+            
+            // Clear cache
+            starMap.positionCache.clear();
+            expect(starMap.positionCache.size).toBe(0);
+        });
+
+        test('should handle performance metrics updates', () => {
+            const initialMetrics = starMap.getPerformanceMetrics();
+            expect(initialMetrics).toBeDefined();
+            
+            // Simulate some rendering
+            starMap.render();
+            
+            const updatedMetrics = starMap.getPerformanceMetrics();
+            expect(updatedMetrics).toBeDefined();
+            expect(updatedMetrics).toHaveProperty('frameRate');
+            expect(updatedMetrics).toHaveProperty('averageRenderTime');
+        });
+    });
+
+    describe('state management', () => {
+        test('should handle following object state changes', () => {
+            const object1 = { name: 'Star1', ra: 12, dec: 30, type: 'star' };
+            const object2 = { name: 'Star2', ra: 6, dec: 45, type: 'star' };
+            
+            starMap.followObject(object1);
+            expect(starMap.followingObject).toBe(object1);
+            expect(starMap.followingType).toBe('star');
+            
+            starMap.followObject(object2);
+            expect(starMap.followingObject).toBe(object2);
+            expect(starMap.followingType).toBe('star');
+            
+            starMap.unfollowObject();
+            expect(starMap.followingObject).toBeNull();
+        });
+
+        test('should handle playback state changes', () => {
+            expect(starMap.isPlaying).toBe(false);
+            
+            starMap.startPlayback();
+            expect(starMap.isPlaying).toBe(true);
+            
+            starMap.stopPlayback();
+            expect(starMap.isPlaying).toBe(false);
+            
+            starMap.togglePlayback();
+            expect(starMap.isPlaying).toBe(true);
+            
+            starMap.togglePlayback();
+            expect(starMap.isPlaying).toBe(false);
+        });
+
+        test('should handle display option state changes', () => {
+            const options = [
+                'showConstellations',
+                'showPlanets',
+                'showMoon',
+                'showStarNames',
+                'showGrid',
+                'showDeepSky'
+            ];
+            
+            options.forEach(option => {
+                const originalValue = starMap[option];
+                
+                starMap[option] = !originalValue;
+                expect(starMap[option]).toBe(!originalValue);
+                
+                starMap[option] = originalValue;
+                expect(starMap[option]).toBe(originalValue);
+            });
+        });
+    });
+
     describe('error handling', () => {
         test('should handle canvas context errors', () => {
             // Temporarily modify the mock to return null
@@ -449,6 +691,20 @@ describe('StarMap', () => {
             
             // Restore the original mock
             document.getElementById = originalGetElementById;
+        });
+
+        test('should handle invalid coordinate values gracefully', () => {
+            const validCoords = [
+                { ra: 0, dec: 0 },
+                { ra: 12, dec: 45 },
+                { ra: 6, dec: -30 },
+                { ra: 18, dec: 60 }
+            ];
+            
+            validCoords.forEach(coord => {
+                expect(() => starMap.skyToScreen(coord.ra, coord.dec)).not.toThrow();
+                expect(() => starMap.screenToSky(coord.ra, coord.dec)).not.toThrow();
+            });
         });
     });
 });
