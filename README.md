@@ -1,5 +1,7 @@
 # 🌟 Interactive Star Map & Constellation Viewer
 
+**NOTE:** This was vibe-coded with Claude for version 1, and with Cursor for the later versions; see what the hype is about.
+
 [![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-Live-brightgreen)](https://bhbmaster.github.io/constellation-viewer)
 [![GitHub](https://img.shields.io/badge/GitHub-Repository-blue)](https://github.com/bhbmaster/constellation-viewer)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)

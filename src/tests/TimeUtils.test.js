@@ -221,4 +221,92 @@ describe('TimeUtils', () => {
             console.error = originalError;
         });
     });
+
+    describe('edge cases and boundary conditions', () => {
+        test('should handle very old dates', () => {
+            const oldDate = new Date('1900-01-01T12:00:00Z');
+            const jd = TimeUtils.getJulianDay(oldDate);
+            const days = TimeUtils.getDaysSinceJ2000(oldDate);
+            
+            expect(jd).toBeDefined();
+            expect(typeof jd).toBe('number');
+            expect(days).toBeLessThan(0); // Before J2000
+        });
+
+        test('should handle very future dates', () => {
+            const futureDate = new Date('2100-01-01T12:00:00Z');
+            const jd = TimeUtils.getJulianDay(futureDate);
+            const days = TimeUtils.getDaysSinceJ2000(futureDate);
+            
+            expect(jd).toBeDefined();
+            expect(typeof jd).toBe('number');
+            expect(days).toBeGreaterThan(0); // After J2000
+        });
+
+        test('should handle leap year dates', () => {
+            const leapYearDate = new Date('2024-02-29T12:00:00Z');
+            const jd = TimeUtils.getJulianDay(leapYearDate);
+            
+            expect(jd).toBeDefined();
+            expect(typeof jd).toBe('number');
+            expect(jd).toBeGreaterThan(0);
+        });
+
+        test('should handle different time zones in formatTime', () => {
+            const date = new Date('2023-06-15T12:00:00Z');
+            
+            const local = TimeUtils.formatTime(date, 'local');
+            const utc = TimeUtils.formatTime(date, 'UTC');
+            const est = TimeUtils.formatTime(date, 'America/New_York');
+            
+            expect(local).toBeDefined();
+            expect(utc).toBeDefined();
+            expect(est).toBeDefined();
+            expect(typeof local).toBe('string');
+            expect(typeof utc).toBe('string');
+            expect(typeof est).toBe('string');
+        });
+
+        test('should handle extreme magnitude values in LST calculation', () => {
+            const date1 = new Date('2000-01-01T00:00:00Z');
+            const date2 = new Date('2000-12-31T23:59:59Z');
+            
+            const lst1 = TimeUtils.getLocalSiderealTime(date1);
+            const lst2 = TimeUtils.getLocalSiderealTime(date2);
+            
+            expect(lst1).toBeDefined();
+            expect(lst2).toBeDefined();
+            expect(typeof lst1).toBe('number');
+            expect(typeof lst2).toBe('number');
+        });
+    });
+
+    describe('performance and consistency', () => {
+        test('should return consistent results for same input', () => {
+            const date = new Date('2023-06-15T18:30:00Z');
+            
+            const jd1 = TimeUtils.getJulianDay(date);
+            const jd2 = TimeUtils.getJulianDay(date);
+            expect(jd1).toBe(jd2);
+            
+            const lst1 = TimeUtils.getLocalSiderealTime(date);
+            const lst2 = TimeUtils.getLocalSiderealTime(date);
+            expect(lst1).toBe(lst2);
+        });
+
+        test('should handle rapid successive calls', () => {
+            const date = new Date('2023-06-15T18:30:00Z');
+            
+            // Call multiple times rapidly
+            for (let i = 0; i < 10; i++) {
+                const jd = TimeUtils.getJulianDay(date);
+                const lst = TimeUtils.getLocalSiderealTime(date);
+                const days = TimeUtils.getDaysSinceJ2000(date);
+                
+                expect(jd).toBeDefined();
+                expect(lst).toBeDefined();
+                expect(days).toBeDefined();
+            }
+        });
+    });
 });
