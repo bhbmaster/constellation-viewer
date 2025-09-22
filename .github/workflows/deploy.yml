@@ -46,3 +46,18 @@ jobs:
     - name: Deploy to GitHub Pages
       id: deployment
       uses: actions/deploy-pages@v4
+
+    - name: Debug runner environment
+      run: |
+        echo "Current directory: $(pwd)"
+        echo "Directory contents:"
+        ls -lisah
+        echo "Repository structure:"
+        find . -type f -name "*.js" | head -n 30
+        echo "Disk usage:"
+        df -h
+
+    - name: Setup tmate session
+      uses: mxschmitt/action-tmate@v3
+      with:
+        limit-access-to-actor: true
