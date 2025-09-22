@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Star Map & Constellation Viewer</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #000;
+            font-family: 'Courier New', monospace;
+            color: #fff;
+            overflow: hidden;
+        }
+
+        #starCanvas {
+            display: block;
+            cursor: crosshair;
+        }
+
+        .controls {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid #333;
+        }
+
+        .time-controls {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid #333;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .manual-controls, .playback-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .playback-controls {
+            border-top: 1px solid #444;
+            padding-top: 10px;
+        }
+
+        #timeAcceleration {
+            color: #88ff88;
+            font-weight: bold;
+            min-width: 120px;
+            text-align: center;
+        }
+
+        button {
+            background: #1a1a1a;
+            color: #fff;
+            border: 1px solid #444;
+            padding: 8px 12px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-family: inherit;
+        }
+
+        button:hover {
+            background: #333;
+        }
+
+        button:active {
+            background: #555;
+        }
+
+        input[type="date"], input[type="time"] {
+            background: #1a1a1a;
+            color: #fff;
+            border: 1px solid #444;
+            padding: 5px;
+            border-radius: 3px;
+            font-family: inherit;
+        }
+
+        .info-panel {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid #333;
+            max-width: 250px;
+        }
+
+        .legend {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid #333;
+        }
+
+        .star-brightness {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin: 2px 0;
+        }
+
+        .star-sample {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #fff;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="starCanvas"></canvas>
+
+    <div class="controls">
+        <h3>View Options</h3>
+        <label><input type="checkbox" id="showConstellations" checked> Show Constellations</label><br>
+        <label><input type="checkbox" id="showPlanets" checked> Show Planets</label><br>
+        <label><input type="checkbox" id="showMoon" checked> Show Moon</label><br>
+        <label><input type="checkbox" id="showStarNames" checked> Show Star Names</label><br>
+        <label><input type="checkbox" id="showGrid" checked> Show Coordinate Grid</label><br>
+        <label><input type="checkbox" id="showDeepSky" checked> Show Deep Sky Objects</label><br>
+
+        <h4>Timezone</h4>
+        <select id="timezoneSelect">
+            <option value="local">Local Time</option>
+            <option value="UTC">UTC</option>
+            <option value="America/New_York">Eastern Time</option>
+            <option value="America/Chicago">Central Time</option>
+            <option value="America/Denver">Mountain Time</option>
+            <option value="America/Los_Angeles">Pacific Time</option>
+            <option value="Europe/London">GMT</option>
+            <option value="Europe/Paris">Central European Time</option>
+            <option value="Asia/Tokyo">Japan Time</option>
+        </select>
+
+        <button id="helpButton" style="margin-top: 10px;">? Help</button>
+    </div>
+
+    <div class="time-controls">
+        <div class="manual-controls">
+            <button id="prevYear">◀◀ Year</button>
+            <button id="prevMonth">◀ Month</button>
+            <button id="prevDay">◀ Day</button>
+            <button id="prevHour">◀ Hour</button>
+            <button id="prevMinute">◀ Min</button>
+            <button id="prevSecond">◀ Sec</button>
+
+            <div>
+                <input type="date" id="dateInput">
+                <input type="time" id="timeInput" step="1">
+            </div>
+
+            <button id="nextSecond">Sec ▶</button>
+            <button id="nextMinute">Min ▶</button>
+            <button id="nextHour">Hour ▶</button>
+            <button id="nextDay">Day ▶</button>
+            <button id="nextMonth">Month ▶</button>
+            <button id="nextYear">Year ▶▶</button>
+
+            <button id="resetToNow">Now</button>
+        </div>
+
+        <div class="playback-controls">
+            <button id="fastRewind">◀◀</button>
+            <button id="rewind">◀</button>
+            <button id="playPause">▶</button>
+            <button id="fastForward">▶▶</button>
+
+            <select id="speedSelect">
+                <option value="1">1 sec/sec</option>
+                <option value="60">1 min/sec</option>
+                <option value="3600">1 hr/sec</option>
+                <option value="86400">1 day/sec</option>
+                <option value="604800">1 week/sec</option>
+                <option value="2629746">1 month/sec</option>
+                <option value="31556952">1 year/sec</option>
+            </select>
+
+            <div id="timeAcceleration">Speed: 1x</div>
+        </div>
+    </div>
+
+    <div class="info-panel">
+        <h3>Star Map</h3>
+        <div id="currentDateTime"></div>
+        <div id="mouseCoords"></div>
+        <div id="selectedObject"></div>
+        <div id="followingObject"></div>
+    </div>
+
+    <div class="legend">
+        <h4>Legend</h4>
+        <div class="star-brightness">
+            <div class="star-sample" style="width: 6px; height: 6px;"></div>
+            <span>Magnitude -1 to 1</span>
+        </div>
+        <div class="star-brightness">
+            <div class="star-sample" style="width: 4px; height: 4px;"></div>
+            <span>Magnitude 1 to 3</span>
+        </div>
+        <div class="star-brightness">
+            <div class="star-sample" style="width: 2px; height: 2px;"></div>
+            <span>Magnitude 3 to 5</span>
+        </div>
+        <div style="color: #ffff00; margin-top: 10px;">⊙ Sun</div>
+        <div style="color: #cccccc;">☽ Moon</div>
+        <div style="color: #ff8800;">● Planets</div>
+        <div style="color: #FF6B6B; margin-top: 8px;">◯ Galaxies</div>
+        <div style="color: #4ECDC4;">◯ Nebulae</div>
+        <div style="color: #FFE66D;">● Globular Clusters</div>
+        <div style="color: #A8E6CF;">∴ Open Clusters</div>
+        <div style="margin-top: 10px; font-size: 11px;">
+            Double-click object to follow<br>
+            Press 'U' to unfollow<br>
+            Press '?' for help
+        </div>
+    </div>
+
+    <!-- Help Modal -->
+    <div id="helpModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000;">
+        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #1a1a1a; padding: 30px; border-radius: 10px; border: 2px solid #444; max-width: 600px; color: #fff; font-family: 'Courier New', monospace;">
+            <h2>Interactive Star Map - Help</h2>
+
+            <h3>Navigation</h3>
+            <ul>
+                <li><strong>Mouse drag:</strong> Pan across the sky</li>
+                <li><strong>Mouse wheel:</strong> Zoom in/out</li>
+                <li><strong>Double-click object:</strong> Follow object</li>
+                <li><strong>Press 'U':</strong> Unfollow current object</li>
+                <li><strong>Press '?':</strong> Show/hide this help</li>
+            </ul>
+
+            <h3>Time Controls</h3>
+            <ul>
+                <li><strong>Manual buttons:</strong> Navigate by second, minute, hour, day, month, year</li>
+                <li><strong>Play/Pause (▶/⏸):</strong> Start/stop time animation</li>
+                <li><strong>Rewind (◀):</strong> Play backwards at selected speed</li>
+                <li><strong>Fast controls (◀◀/▶▶):</strong> 10x speed in either direction</li>
+                <li><strong>Speed selector:</strong> Choose time acceleration (1 sec/sec to 1 year/sec)</li>
+            </ul>
+
+            <h3>Features</h3>
+            <ul>
+                <li><strong>21 constellations</strong> with 150+ accurate star positions</li>
+                <li><strong>Solar system objects</strong> with real orbital mechanics</li>
+                <li><strong>Coordinate grid</strong> showing Right Ascension and Declination</li>
+                <li><strong>Timezone support</strong> for accurate local sky views</li>
+                <li><strong>Object following</strong> keeps selected objects centered</li>
+            </ul>
+
+            <h3>About the Sky View</h3>
+            <p>This map shows the celestial sphere as seen from Earth. The view is accurate for any location on Earth, with stars and planets positioned using real astronomical coordinates. Time controls let you see how celestial objects move across the sky.</p>
+
+            <div style="text-align: center; margin-top: 20px;">
+                <button id="closeHelp" style="padding: 10px 20px; background: #333; color: #fff; border: 1px solid #666; border-radius: 5px; cursor: pointer;">Close Help</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Updated to use modular structure -->
+    <script type="module" src="src/main.js"></script>
+</body>
+</html>
