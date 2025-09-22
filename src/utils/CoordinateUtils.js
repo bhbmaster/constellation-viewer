@@ -14,8 +14,9 @@ export class CoordinateUtils {
      */
     static skyToScreen(ra, dec, viewCenter, zoom, canvas, lst) {
         try {
-            // Apply sidereal time rotation
-            const adjustedRa = (ra - viewCenter.ra + lst) * 15; // Convert to degrees
+            // Calculate the difference in RA from the view center
+            const raDiff = ((ra - viewCenter.ra) % 24 + 24) % 24;
+            const adjustedRa = raDiff * 15; // Convert to degrees
 
             // Simple stereographic projection
             const raRad = adjustedRa * Math.PI / 180;
@@ -25,7 +26,8 @@ export class CoordinateUtils {
             const cosC = Math.sin(centerDecRad) * Math.sin(decRad) +
                         Math.cos(centerDecRad) * Math.cos(decRad) * Math.cos(raRad);
 
-            if (cosC <= 0) return null; // Behind viewer
+            // Check if behind viewer (cosC <= 0) or if declination is too extreme
+            if (cosC <= 0 || Math.abs(dec) > 90) return null;
 
             const k = zoom * Math.min(canvas.width, canvas.height) / 4;
 
@@ -60,6 +62,15 @@ export class CoordinateUtils {
             const dy = (centerY - y) / k;
 
             const rho = Math.sqrt(dx * dx + dy * dy);
+            
+            // Handle edge case where rho is 0 (center of screen)
+            if (rho === 0) {
+                return {
+                    ra: viewCenter.ra,
+                    dec: viewCenter.dec
+                };
+            }
+
             const c = 2 * Math.atan(rho / 2);
 
             const centerDecRad = viewCenter.dec * Math.PI / 180;
@@ -71,15 +82,15 @@ export class CoordinateUtils {
                                  rho * Math.cos(centerDecRad) * Math.cos(c) -
                                  dy * Math.sin(centerDecRad) * Math.sin(c));
 
-            const adjustedRa = (ra * 180 / Math.PI) / 15 + viewCenter.ra - lst;
+            const adjustedRa = (ra * 180 / Math.PI) / 15 + viewCenter.ra;
 
             return {
                 ra: ((adjustedRa % 24) + 24) % 24,
-                dec: dec * 180 / Math.PI
+                dec: Math.max(-90, Math.min(90, dec * 180 / Math.PI))
             };
         } catch (error) {
             console.error('Error in screenToSky:', error);
-            return { ra: 0, dec: 0 };
+            return { ra: viewCenter.ra, dec: viewCenter.dec };
         }
     }
 
