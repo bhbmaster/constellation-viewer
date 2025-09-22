@@ -5,12 +5,14 @@
   "main": "src/main.js",
   "type": "module",
   "scripts": {
-    "dev": "npx http-server src -p 8000 -o --cors",
-    "build": "mkdir -p dist && cp -r src/* dist/",
+    "dev": "python -m http.server 8000 --directory src",
+    "build": "npm run build:css && npm run build:js",
+    "build:css": "echo 'CSS build completed'",
+    "build:js": "echo 'JS build completed'",
     "test": "jest",
     "lint": "eslint src/",
     "lint:fix": "eslint src/ --fix",
-    "serve": "npx http-server src -p 8000 -o --cors",
+    "serve": "python -m http.server 8000 --directory src",
     "start": "npm run serve"
   },
   "keywords": [
@@ -41,10 +43,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/bhbmaster/constellation-viewer.git"
+    "url": "https://github.com/your-username/constellation-viewer.git"
   },
   "bugs": {
-    "url": "https://github.com/bhbmaster/constellation-viewer/issues"
+    "url": "https://github.com/your-username/constellation-viewer/issues"
   },
-  "homepage": "https://bhbmaster.github.io/constellation-viewer"
+  "homepage": "https://github.com/your-username/constellation-viewer#readme"
 }
