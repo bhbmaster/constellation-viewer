@@ -47,12 +47,20 @@ export const CONSTELLATION_DATA = {
             { name: 'Alnitak', ra: 5.6793, dec: -1.9426, mag: 1.77, id: 'zeta' },
             { name: 'Saiph', ra: 5.7958, dec: -9.6697, mag: 2.09, id: 'kappa' },
             { name: 'Meissa', ra: 5.5880, dec: 9.9342, mag: 3.33, id: 'lambda' },
-            { name: 'Hatysa', ra: 5.3689, dec: -5.9099, mag: 3.69, id: 'iota' }
+            { name: 'Hatysa', ra: 5.3689, dec: -5.9099, mag: 3.69, id: 'iota' },
+            { name: 'M42 (Orion Nebula)', ra: 5.5889, dec: -5.3911, mag: 4.0, id: 'm42' }
         ],
         lines: [
-            ['alpha', 'gamma'], ['gamma', 'delta'], ['delta', 'epsilon'], ['epsilon', 'zeta'],
-            ['beta', 'kappa'], ['kappa', 'zeta'], ['alpha', 'delta'], ['gamma', 'beta'],
-            ['lambda', 'gamma'], ['lambda', 'delta'], ['iota', 'delta']
+            // Main body outline (hourglass shape)
+            ['alpha', 'gamma'], ['gamma', 'beta'], ['beta', 'kappa'], ['kappa', 'alpha'],
+            // Orion's Belt (three stars in a line)
+            ['delta', 'epsilon'], ['epsilon', 'zeta'],
+            // Cross connections from main body to belt
+            ['alpha', 'delta'], ['gamma', 'delta'], ['beta', 'zeta'],
+            // Head connection
+            ['lambda', 'gamma'],
+            // Orion's Sword (from belt to nebula)
+            ['zeta', 'm42']
         ]
     },
 
